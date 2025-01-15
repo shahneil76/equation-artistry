@@ -13,7 +13,7 @@ const MathArt = () => {
   const frameIdRef = useRef<number>(0);
 
   useEffect(() => {
-    console.log('Initializing Sri Yantra scene');
+    console.log('Initializing enhanced Sri Yantra scene');
     if (!mountRef.current) return;
 
     // Scene setup
@@ -43,7 +43,7 @@ const MathArt = () => {
     controls.enableDamping = true;
     controlsRef.current = controls;
 
-    // Lighting
+    // Enhanced lighting
     const ambientLight = new THREE.AmbientLight(0x404040, 2);
     scene.add(ambientLight);
 
@@ -70,7 +70,7 @@ const MathArt = () => {
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
 
-    // Create Sri Yantra
+    // Create authentic Sri Yantra
     const createTriangle = (points: number[][]) => {
       const geometry = new THREE.BufferGeometry();
       const vertices = new Float32Array(points.flat());
@@ -83,30 +83,50 @@ const MathArt = () => {
       0x7E69AB, // Secondary Purple
       0x6E59A5, // Tertiary Purple
       0x8B5CF6, // Vivid Purple
-      0xFFD700  // Gold
+      0xFFD700, // Gold
+      0x9333EA, // Deep Purple
+      0xA855F7, // Bright Purple
+      0xC084FC, // Light Purple
+      0xE9D5FF  // Pale Purple
     ];
 
-    // Create triangles for Sri Yantra
+    // Calculate golden ratio for authentic proportions
+    const phi = (1 + Math.sqrt(5)) / 2;
+    const baseSize = 2;
+    
+    // Define authentic Sri Yantra triangles
     const triangleSets = [
       // Outer triangle
-      [[0, 2, 0], [-2, -2, 0], [2, -2, 0]],
-      // Inner triangles (simplified for example)
-      [[0, 1.5, 0], [-1.5, -1.5, 0], [1.5, -1.5, 0]],
-      [[0, 1, 0], [-1, -1, 0], [1, -1, 0]],
-      [[0, 0.5, 0], [-0.5, -0.5, 0], [0.5, -0.5, 0]],
-      // Center point
-      [[0, 0, 0], [-0.1, -0.1, 0], [0.1, -0.1, 0]]
+      [[0, baseSize, 0], [-baseSize * Math.sqrt(3)/2, -baseSize/2, 0], [baseSize * Math.sqrt(3)/2, -baseSize/2, 0]],
+      
+      // First inner triangle (inverted)
+      [[0, -baseSize/phi, 0], [baseSize/phi * Math.sqrt(3)/2, baseSize/(2*phi), 0], [-baseSize/phi * Math.sqrt(3)/2, baseSize/(2*phi), 0]],
+      
+      // Second layer triangles
+      [[0, baseSize/phi, 0], [-baseSize/phi * Math.sqrt(3)/2, -baseSize/(2*phi), 0], [baseSize/phi * Math.sqrt(3)/2, -baseSize/(2*phi), 0]],
+      [[0, -baseSize/(phi*phi), 0], [baseSize/(phi*phi) * Math.sqrt(3)/2, baseSize/(2*phi*phi), 0], [-baseSize/(phi*phi) * Math.sqrt(3)/2, baseSize/(2*phi*phi), 0]],
+      
+      // Third layer triangles
+      [[0, baseSize/(phi*phi), 0], [-baseSize/(phi*phi) * Math.sqrt(3)/2, -baseSize/(2*phi*phi), 0], [baseSize/(phi*phi) * Math.sqrt(3)/2, -baseSize/(2*phi*phi), 0]],
+      [[0, -baseSize/(phi*phi*phi), 0], [baseSize/(phi*phi*phi) * Math.sqrt(3)/2, baseSize/(2*phi*phi*phi), 0], [-baseSize/(phi*phi*phi) * Math.sqrt(3)/2, baseSize/(2*phi*phi*phi), 0]],
+      
+      // Fourth layer triangles
+      [[0, baseSize/(phi*phi*phi), 0], [-baseSize/(phi*phi*phi) * Math.sqrt(3)/2, -baseSize/(2*phi*phi*phi), 0], [baseSize/(phi*phi*phi) * Math.sqrt(3)/2, -baseSize/(2*phi*phi*phi), 0]],
+      [[0, -baseSize/(phi*phi*phi*phi), 0], [baseSize/(phi*phi*phi*phi) * Math.sqrt(3)/2, baseSize/(2*phi*phi*phi*phi), 0], [-baseSize/(phi*phi*phi*phi) * Math.sqrt(3)/2, baseSize/(2*phi*phi*phi*phi), 0]],
+      
+      // Center bindu point
+      [[0, 0.1, 0], [-0.1, -0.1, 0], [0.1, -0.1, 0]]
     ];
 
     triangleSets.forEach((points, i) => {
       const geometry = createTriangle(points);
       const material = new THREE.MeshPhongMaterial({
-        color: colors[i],
+        color: colors[i % colors.length],
         side: THREE.DoubleSide,
         wireframe: true,
         transparent: true,
         opacity: 1,
-        emissive: colors[i],
+        emissive: colors[i % colors.length],
         emissiveIntensity: 0.5,
         shininess: 100
       });

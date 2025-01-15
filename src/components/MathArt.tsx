@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
 
 const MathArt = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -52,7 +53,7 @@ const MathArt = () => {
 
     // Create mathematical art
     const createParametricGeometry = () => {
-      const geometry = new THREE.ParametricGeometry((u: number, v: number, target: THREE.Vector3) => {
+      const parametricFunc = (u: number, v: number, target: THREE.Vector3) => {
         const phi = u * Math.PI * 2;
         const theta = v * Math.PI;
         const r = 5;
@@ -63,8 +64,9 @@ const MathArt = () => {
         const z = r * Math.cos(theta) * Math.sin(u * v * 3);
 
         target.set(x, y, z);
-      }, 50, 50);
-      return geometry;
+      };
+
+      return new ParametricGeometry(parametricFunc, 50, 50);
     };
 
     // Create multiple instances with different parameters

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
 
 const MathArt = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -14,7 +13,7 @@ const MathArt = () => {
   const frameIdRef = useRef<number>(0);
 
   useEffect(() => {
-    console.log('Initializing 3D scene');
+    console.log('Initializing Sri Yantra scene');
     if (!mountRef.current) return;
 
     // Scene setup
@@ -29,7 +28,7 @@ const MathArt = () => {
       0.1,
       1000
     );
-    camera.position.z = 10;
+    camera.position.z = 5;
     cameraRef.current = camera;
 
     // Renderer setup
@@ -45,14 +44,14 @@ const MathArt = () => {
     controlsRef.current = controls;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Increased intensity
+    const ambientLight = new THREE.AmbientLight(0x404040, 2);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 2); // Increased intensity
+    const pointLight = new THREE.PointLight(0xffffff, 2);
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Create stars
+    // Create stars background
     const starsGeometry = new THREE.BufferGeometry();
     const starsCount = 1000;
     const positions = new Float32Array(starsCount * 3);
@@ -71,51 +70,51 @@ const MathArt = () => {
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
 
-    // Create butterfly pattern
-    const createButterflyGeometry = () => {
-      const parametricFunc = (u: number, v: number, target: THREE.Vector3) => {
-        const theta = u * Math.PI * 2;
-        const r = v * 5;
-
-        const multiplier = Math.sin(2 * theta);
-        const x = r * Math.cos(theta) * multiplier;
-        const y = r * Math.sin(theta) * multiplier;
-        const z = Math.sin(theta * 4) * 0.5;
-
-        target.set(x, y, z);
-      };
-
-      return new ParametricGeometry(parametricFunc, 100, 50);
+    // Create Sri Yantra
+    const createTriangle = (points: number[][]) => {
+      const geometry = new THREE.BufferGeometry();
+      const vertices = new Float32Array(points.flat());
+      geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      return geometry;
     };
 
-    // Create multiple butterfly instances with different colors
     const colors = [
-      0xff69b4, // Hot Pink (brighter than Deep Pink)
-      0x00ff7f, // Spring Green (brighter than regular green)
-      0x1e90ff, // Dodger Blue (brighter than Royal Blue)
-      0xffd700, // Gold (brighter than orange)
-      0xff00ff  // Magenta (brighter than Dark Violet)
+      0x9b87f5, // Primary Purple
+      0x7E69AB, // Secondary Purple
+      0x6E59A5, // Tertiary Purple
+      0x8B5CF6, // Vivid Purple
+      0xFFD700  // Gold
     ];
 
-    for (let i = 0; i < colors.length; i++) {
-      const geometry = createButterflyGeometry();
+    // Create triangles for Sri Yantra
+    const triangleSets = [
+      // Outer triangle
+      [[0, 2, 0], [-2, -2, 0], [2, -2, 0]],
+      // Inner triangles (simplified for example)
+      [[0, 1.5, 0], [-1.5, -1.5, 0], [1.5, -1.5, 0]],
+      [[0, 1, 0], [-1, -1, 0], [1, -1, 0]],
+      [[0, 0.5, 0], [-0.5, -0.5, 0], [0.5, -0.5, 0]],
+      // Center point
+      [[0, 0, 0], [-0.1, -0.1, 0], [0.1, -0.1, 0]]
+    ];
+
+    triangleSets.forEach((points, i) => {
+      const geometry = createTriangle(points);
       const material = new THREE.MeshPhongMaterial({
         color: colors[i],
         side: THREE.DoubleSide,
         wireframe: true,
         transparent: true,
-        opacity: 1, // Increased opacity
-        emissive: colors[i], // Added emissive color
-        emissiveIntensity: 0.5, // Makes it glow
-        shininess: 100 // Makes it more reflective
+        opacity: 1,
+        emissive: colors[i],
+        emissiveIntensity: 0.5,
+        shininess: 100
       });
       const mesh = new THREE.Mesh(geometry, material);
-      mesh.rotation.z = (i * Math.PI) / colors.length;
-      mesh.scale.multiplyScalar(0.8 + i * 0.1);
       scene.add(mesh);
       geometriesRef.current.push(geometry);
       materialsRef.current.push(material);
-    }
+    });
 
     // Animation
     const animate = () => {
@@ -147,7 +146,7 @@ const MathArt = () => {
 
     // Cleanup
     return () => {
-      console.log('Cleaning up 3D scene');
+      console.log('Cleaning up Sri Yantra scene');
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(frameIdRef.current);
       

@@ -19,7 +19,7 @@ const MathArt = () => {
 
     // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000); // Black background
+    scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
 
     // Camera setup
@@ -45,10 +45,10 @@ const MathArt = () => {
     controlsRef.current = controls;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0x404040);
+    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Increased intensity
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 1);
+    const pointLight = new THREE.PointLight(0xffffff, 2); // Increased intensity
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
@@ -90,11 +90,11 @@ const MathArt = () => {
 
     // Create multiple butterfly instances with different colors
     const colors = [
-      0xff1493, // Deep Pink
-      0x00ff00, // Lime Green
-      0x4169e1, // Royal Blue
-      0xffa500, // Orange
-      0x9400d3  // Dark Violet
+      0xff69b4, // Hot Pink (brighter than Deep Pink)
+      0x00ff7f, // Spring Green (brighter than regular green)
+      0x1e90ff, // Dodger Blue (brighter than Royal Blue)
+      0xffd700, // Gold (brighter than orange)
+      0xff00ff  // Magenta (brighter than Dark Violet)
     ];
 
     for (let i = 0; i < colors.length; i++) {
@@ -104,11 +104,14 @@ const MathArt = () => {
         side: THREE.DoubleSide,
         wireframe: true,
         transparent: true,
-        opacity: 0.8,
+        opacity: 1, // Increased opacity
+        emissive: colors[i], // Added emissive color
+        emissiveIntensity: 0.5, // Makes it glow
+        shininess: 100 // Makes it more reflective
       });
       const mesh = new THREE.Mesh(geometry, material);
-      mesh.rotation.z = (i * Math.PI) / colors.length; // Spread butterflies in a circle
-      mesh.scale.multiplyScalar(0.8 + i * 0.1); // Slightly different sizes
+      mesh.rotation.z = (i * Math.PI) / colors.length;
+      mesh.scale.multiplyScalar(0.8 + i * 0.1);
       scene.add(mesh);
       geometriesRef.current.push(geometry);
       materialsRef.current.push(material);
@@ -121,7 +124,7 @@ const MathArt = () => {
       controls.update();
 
       scene.rotation.z += 0.001;
-      stars.rotation.z -= 0.0005; // Rotate stars in opposite direction
+      stars.rotation.z -= 0.0005;
       
       renderer.render(scene, camera);
     };

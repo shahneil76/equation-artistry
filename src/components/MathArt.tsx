@@ -19,7 +19,7 @@ const MathArt = () => {
 
     // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff);
+    scene.background = new THREE.Color(0x000000); // Black background
     sceneRef.current = scene;
 
     // Camera setup
@@ -48,22 +48,39 @@ const MathArt = () => {
     const ambientLight = new THREE.AmbientLight(0x404040);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xff0000, 1);
+    const pointLight = new THREE.PointLight(0xffffff, 1);
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
+
+    // Create stars
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsCount = 1000;
+    const positions = new Float32Array(starsCount * 3);
+
+    for (let i = 0; i < starsCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 100;
+      positions[i + 1] = (Math.random() - 0.5) * 100;
+      positions[i + 2] = (Math.random() - 0.5) * 100;
+    }
+
+    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const starsMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.1,
+    });
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
 
     // Create butterfly pattern
     const createButterflyGeometry = () => {
       const parametricFunc = (u: number, v: number, target: THREE.Vector3) => {
-        // Convert u and v to proper ranges
-        const theta = u * Math.PI * 2; // Full rotation
-        const r = v * 5; // Radius range
+        const theta = u * Math.PI * 2;
+        const r = v * 5;
 
-        // Butterfly curve equations
-        const multiplier = Math.sin(2 * theta); // Creates the lobes
+        const multiplier = Math.sin(2 * theta);
         const x = r * Math.cos(theta) * multiplier;
         const y = r * Math.sin(theta) * multiplier;
-        const z = Math.sin(theta * 4) * 0.5; // Adds some 3D waviness
+        const z = Math.sin(theta * 4) * 0.5;
 
         target.set(x, y, z);
       };
@@ -71,17 +88,27 @@ const MathArt = () => {
       return new ParametricGeometry(parametricFunc, 100, 50);
     };
 
-    // Create butterfly instances with different rotations
-    for (let i = 0; i < 1; i++) {
+    // Create multiple butterfly instances with different colors
+    const colors = [
+      0xff1493, // Deep Pink
+      0x00ff00, // Lime Green
+      0x4169e1, // Royal Blue
+      0xffa500, // Orange
+      0x9400d3  // Dark Violet
+    ];
+
+    for (let i = 0; i < colors.length; i++) {
       const geometry = createButterflyGeometry();
       const material = new THREE.MeshPhongMaterial({
-        color: 0xff0000,
+        color: colors[i],
         side: THREE.DoubleSide,
         wireframe: true,
         transparent: true,
         opacity: 0.8,
       });
       const mesh = new THREE.Mesh(geometry, material);
+      mesh.rotation.z = (i * Math.PI) / colors.length; // Spread butterflies in a circle
+      mesh.scale.multiplyScalar(0.8 + i * 0.1); // Slightly different sizes
       scene.add(mesh);
       geometriesRef.current.push(geometry);
       materialsRef.current.push(material);
@@ -91,11 +118,10 @@ const MathArt = () => {
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
       
-      // Update controls
       controls.update();
 
-      // Gentle rotation
       scene.rotation.z += 0.001;
+      stars.rotation.z -= 0.0005; // Rotate stars in opposite direction
       
       renderer.render(scene, camera);
     };

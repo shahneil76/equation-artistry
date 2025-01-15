@@ -19,6 +19,7 @@ const MathArt = () => {
 
     // Scene setup
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
     sceneRef.current = scene;
 
     // Camera setup
@@ -28,7 +29,7 @@ const MathArt = () => {
       0.1,
       1000
     );
-    camera.position.z = 15;
+    camera.position.z = 10;
     cameraRef.current = camera;
 
     // Renderer setup
@@ -47,39 +48,40 @@ const MathArt = () => {
     const ambientLight = new THREE.AmbientLight(0x404040);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 1);
+    const pointLight = new THREE.PointLight(0xff0000, 1);
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Create mathematical art
-    const createParametricGeometry = () => {
+    // Create butterfly pattern
+    const createButterflyGeometry = () => {
       const parametricFunc = (u: number, v: number, target: THREE.Vector3) => {
-        const phi = u * Math.PI * 2;
-        const theta = v * Math.PI;
-        const r = 5;
+        // Convert u and v to proper ranges
+        const theta = u * Math.PI * 2; // Full rotation
+        const r = v * 5; // Radius range
 
-        // Combine multiple mathematical functions for interesting shapes
-        const x = r * Math.sin(theta) * Math.cos(phi) * Math.sin(u * 5);
-        const y = r * Math.sin(theta) * Math.sin(phi) * Math.cos(v * 5);
-        const z = r * Math.cos(theta) * Math.sin(u * v * 3);
+        // Butterfly curve equations
+        const multiplier = Math.sin(2 * theta); // Creates the lobes
+        const x = r * Math.cos(theta) * multiplier;
+        const y = r * Math.sin(theta) * multiplier;
+        const z = Math.sin(theta * 4) * 0.5; // Adds some 3D waviness
 
         target.set(x, y, z);
       };
 
-      return new ParametricGeometry(parametricFunc, 50, 50);
+      return new ParametricGeometry(parametricFunc, 100, 50);
     };
 
-    // Create multiple instances with different parameters
-    for (let i = 0; i < 3; i++) {
-      const geometry = createParametricGeometry();
+    // Create butterfly instances with different rotations
+    for (let i = 0; i < 1; i++) {
+      const geometry = createButterflyGeometry();
       const material = new THREE.MeshPhongMaterial({
-        color: new THREE.Color().setHSL(i * 0.3, 0.7, 0.5),
+        color: 0xff0000,
+        side: THREE.DoubleSide,
         wireframe: true,
         transparent: true,
         opacity: 0.8,
       });
       const mesh = new THREE.Mesh(geometry, material);
-      mesh.rotation.x = i * Math.PI / 6;
       scene.add(mesh);
       geometriesRef.current.push(geometry);
       materialsRef.current.push(material);
@@ -92,19 +94,8 @@ const MathArt = () => {
       // Update controls
       controls.update();
 
-      // Animate materials
-      materialsRef.current.forEach((material, index) => {
-        if (material instanceof THREE.MeshPhongMaterial) {
-          material.color.setHSL(
-            ((Date.now() * 0.001 + index * 0.3) % 1),
-            0.7,
-            0.5
-          );
-        }
-      });
-
-      // Rotate scene
-      scene.rotation.y += 0.001;
+      // Gentle rotation
+      scene.rotation.z += 0.001;
       
       renderer.render(scene, camera);
     };

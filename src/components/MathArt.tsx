@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const MathArt = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -52,22 +52,18 @@ const MathArt = () => {
 
     // Create mathematical art
     const createParametricGeometry = () => {
-      const geometry = new THREE.ParametricBufferGeometry(
-        (u: number, v: number, target: THREE.Vector3) => {
-          const phi = u * Math.PI * 2;
-          const theta = v * Math.PI;
-          const r = 5;
+      const geometry = new THREE.ParametricGeometry((u: number, v: number, target: THREE.Vector3) => {
+        const phi = u * Math.PI * 2;
+        const theta = v * Math.PI;
+        const r = 5;
 
-          // Combine multiple mathematical functions for interesting shapes
-          const x = r * Math.sin(theta) * Math.cos(phi) * Math.sin(u * 5);
-          const y = r * Math.sin(theta) * Math.sin(phi) * Math.cos(v * 5);
-          const z = r * Math.cos(theta) * Math.sin(u * v * 3);
+        // Combine multiple mathematical functions for interesting shapes
+        const x = r * Math.sin(theta) * Math.cos(phi) * Math.sin(u * 5);
+        const y = r * Math.sin(theta) * Math.sin(phi) * Math.cos(v * 5);
+        const z = r * Math.cos(theta) * Math.sin(u * v * 3);
 
-          target.set(x, y, z);
-        },
-        50,
-        50
-      );
+        target.set(x, y, z);
+      }, 50, 50);
       return geometry;
     };
 
